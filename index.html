@@ -2,234 +2,157 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>林老师的咒语集</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>林老师的提示词库</title>
     <style>
-        :root {
-            --bg-color: #0B0E14;
-            --card-bg: #151A23;
-            --border-color: #2D3748;
-            --text-main: #FFFFFF;
-            --text-dim: #8B949E;
-            --neon-cyan: #4FD1C5; 
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "PingFang SC", sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: var(--bg-color); color: var(--text-main); padding: 20px; max-width: 1200px; margin: 0 auto; }
-
+        :root { --bg: #0B0E14; --card: #151A23; --cyan: #4FD1C5; --text: #E2E8F0; }
+        body { background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; margin: 0; padding: 20px; }
+        
         /* 顶部导航 */
-        .navbar { 
-            display: flex; justify-content: space-between; align-items: center; 
-            margin-bottom: 30px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 15px;
-        }
-        .logo-area { display: flex; align-items: center; cursor: pointer; }
-        .logo-area::before { content: ""; display: block; width: 4px; height: 24px; background: var(--neon-cyan); margin-right: 12px; border-radius: 2px; }
-        .logo-area h2 { font-size: 22px; font-weight: 700; }
-
-        .admin-only { display: none; gap: 10px; } 
-        .admin-btn { background: var(--neon-cyan); color: #000; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-
-        /* 内容布局 */
-        .section-header { display: flex; align-items: center; margin: 30px 0 15px; }
-        .section-header::before { content: ""; display: block; width: 3px; height: 18px; background: var(--neon-cyan); margin-right: 10px; }
-        .section-title { font-size: 18px; font-weight: bold; flex-grow: 1; }
-
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
-        @media (max-width: 480px) { .grid { grid-template-columns: repeat(2, 1fr); } }
-
-        .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; position: relative; }
-        .img-box { width: 100%; aspect-ratio: 1/1; cursor: pointer; }
-        .img-box img { width: 100%; height: 100%; object-fit: cover; }
+        .nav { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #2D3748; margin-bottom: 30px; }
+        .logo { border-left: 4px solid var(--cyan); padding-left: 12px; cursor: pointer; }
+        .logo h2 { margin: 0; font-size: 20px; letter-spacing: 1px; }
         
-        .card-controls { position: absolute; top: 8px; right: 8px; display: none; gap: 6px; }
-        .ctrl-btn { width: 28px; height: 28px; border-radius: 50%; border: none; background: rgba(0,0,0,0.7); color: white; cursor: pointer; }
+        /* 按钮样式 */
+        .admin-btn { background: var(--cyan); color: #000; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; display: none; margin-left: 10px; }
+        .btn-group { display: flex; }
 
-        .card-info { padding: 12px; text-align: center; }
-        .copy-btn { width: 100%; padding: 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: white; border-radius: 6px; cursor: pointer; font-size: 12px; }
-
-        /* 弹窗设计 */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; }
-        .modal-content { 
-            background: #1A202C; width: 90%; max-width: 400px; margin: 10vh auto; padding: 25px; 
-            border-radius: 15px; border: 1px solid var(--neon-cyan); 
-        }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-size: 12px; color: var(--text-dim); }
-        .form-group input, .form-group textarea { width: 100%; padding: 10px; background: #0B0E14; border: 1px solid var(--border-color); color: white; border-radius: 6px; }
+        /* 卡片网格 */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+        .card { background: var(--card); border-radius: 12px; border: 1px solid #2D3748; overflow: hidden; transition: 0.3s; position: relative; }
+        .card:hover { transform: translateY(-5px); border-color: var(--cyan); }
+        .card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; background: #000; }
+        .card-info { padding: 15px; }
+        .card-title { font-size: 14px; font-weight: 500; margin-bottom: 12px; color: #CBD5E0; }
         
-        .submit-btn { width: 100%; padding: 12px; background: var(--neon-cyan); color: #000; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-
-        #toast { position: fixed; bottom: -50px; left: 50%; transform: translateX(-50%); background: var(--neon-cyan); color: #000; padding: 10px 25px; border-radius: 20px; transition: 0.4s; z-index: 2000; }
-        #toast.show { bottom: 30px; }
+        /* 复制按钮 */
+        .copy-btn { width: 100%; padding: 10px; background: rgba(79, 209, 197, 0.1); color: var(--cyan); border: 1px solid var(--cyan); border-radius: 6px; cursor: pointer; font-size: 13px; transition: 0.2s; }
+        .copy-btn:hover { background: var(--cyan); color: #000; }
+        
+        /* 录入弹窗 */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 100; backdrop-filter: blur(5px); }
+        .modal-content { background: #1A202C; width: 90%; max-width: 450px; margin: 50px auto; padding: 30px; border-radius: 15px; border: 1px solid var(--cyan); }
+        input, textarea { width: 100%; padding: 12px; margin: 10px 0; background: #000; color: #fff; border: 1px solid #2D3748; border-radius: 8px; box-sizing: border-box; }
+        .save-btn { width: 100%; padding: 15px; background: var(--cyan); color: #000; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <div class="navbar">
-        <div class="logo-area" onclick="checkAdmin()">
-            <h2>林老师的咒语集</h2>
+    <div class="nav">
+        <div class="logo" onclick="login()">
+            <h2>林老师的提示词库</h2>
         </div>
-        <div id="admin-tools" class="admin-only">
-            <button class="admin-btn" onclick="openModal()">＋ 添加内容</button>
-            <button onclick="logout()" style="background:none; border:1px solid red; color:red; padding:5px; border-radius:4px; font-size:10px; cursor:pointer;">退出</button>
+        <div class="btn-group">
+            <button id="addBtn" class="admin-btn" onclick="showModal()">+ 添加案例</button>
+            <button id="expBtn" class="admin-btn" style="background:#fff" onclick="exportData()">备份数据</button>
         </div>
     </div>
 
-    <div id="main-content"></div>
+    <div id="list" class="grid"></div>
 
-    <div class="modal" id="adminModal">
+    <div id="myModal" class="modal">
         <div class="modal-content">
-            <h3 style="margin-bottom:15px;">编辑器</h3>
-            <input type="hidden" id="edit-gIdx"><input type="hidden" id="edit-iIdx">
-            <div class="form-group"><label>分类</label><input type="text" id="in-category" placeholder="分类名称"></div>
-            <div class="form-group"><label>名称</label><input type="text" id="in-name" placeholder="内容名称"></div>
-            <div class="form-group"><label>图片链接</label><input type="text" id="in-img" placeholder="图片URL或路径"></div>
-            <div class="form-group"><label>提示词</label><textarea id="in-prompt" rows="5" placeholder="AI提示词"></textarea></div>
-            <button class="submit-btn" onclick="handleSave()">确认保存</button>
-            <button onclick="closeModal()" style="width:100%; background:none; color:gray; border:none; margin-top:10px; cursor:pointer;">取消</button>
+            <h3 style="margin-top:0; color:var(--cyan)">录入新提示词</h3>
+            <input type="text" id="name" placeholder="案例名称 (如: 真人转Q版公仔)">
+            <input type="text" id="img" placeholder="封面图片链接">
+            <textarea id="prompt" rows="5" placeholder="在此粘贴 AI 提示词..."></textarea>
+            <button class="save-btn" onclick="saveData()">确认发布</button>
+            <button onclick="closeModal()" style="width:100%; background:none; color:#718096; border:none; margin-top:15px; cursor:pointer">取消返回</button>
         </div>
     </div>
-
-    <div id="toast">✅ 操作成功</div>
 
     <script>
-        // 初始化数据
-        let db = JSON.parse(localStorage.getItem('teacherLin_DB')) || [];
-        let isAdmin = sessionStorage.getItem('isLinAdmin') === 'true';
+        let db = [];
+        let isAdmin = false;
 
-        // 登录逻辑
-        function checkAdmin() {
-            if(isAdmin) return;
-            const pw = prompt("请输入管理员口令：");
-            if(pw === "lin888") {
-                isAdmin = true;
-                sessionStorage.setItem('isLinAdmin', 'true');
-                renderPage();
-                showToast("管理员模式已开启");
+        // 核心：自动读取云端备份或本地缓存
+        async function init() {
+            try {
+                const res = await fetch('ai_data.json');
+                if (res.ok) {
+                    db = await res.json();
+                } else {
+                    db = JSON.parse(localStorage.getItem('lin_teacher_db')) || [];
+                }
+            } catch (e) {
+                db = JSON.parse(localStorage.getItem('lin_teacher_db')) || [];
             }
+            render();
         }
 
-        function logout() {
-            isAdmin = false;
-            sessionStorage.removeItem('isLinAdmin');
-            renderPage();
-        }
-
-        // 渲染页面
-        function renderPage() {
-            document.querySelectorAll('.admin-only').forEach(el => el.style.display = isAdmin ? 'flex' : 'none');
-            const container = document.getElementById('main-content');
-            container.innerHTML = db.length === 0 ? '<div style="text-align:center;color:gray;padding:50px;">点击标题登录后开始添加</div>' : '';
-
-            db.forEach((group, gIdx) => {
-                let section = document.createElement('div');
-                section.innerHTML = `
-                    <div class="section-header">
-                        <span class="section-title">${group.category}</span>
-                        ${isAdmin ? `<span style="color:red;font-size:12px;cursor:pointer;" onclick="deleteGroup(${gIdx})">删除分类</span>` : ''}
-                    </div>`;
-                let grid = document.createElement('div');
-                grid.className = 'grid';
-                
-                group.items.forEach((item, iIdx) => {
-                    let card = document.createElement('div');
-                    card.className = 'card';
-                    card.innerHTML = `
-                        <div class="card-controls" style="display:${isAdmin?'flex':'none'}">
-                            <button class="ctrl-btn" onclick="editItem(${gIdx},${iIdx})">✎</button>
-                            <button class="ctrl-btn" onclick="deleteItem(${gIdx},${iIdx})">×</button>
-                        </div>
-                        <div class="img-box" onclick="copyText('${encodeURIComponent(item.prompt)}')">
-                            <img src="${item.img}" onerror="this.src='https://via.placeholder.com/300?text=Wait...'">
-                        </div>
-                        <div class="card-info">
-                            <div style="font-size:12px;color:gray;margin-bottom:8px;">${item.name}</div>
-                            <button class="copy-btn" onclick="copyText('${encodeURIComponent(item.prompt)}')">复制提示词</button>
-                        </div>`;
-                    grid.appendChild(card);
-                });
-                section.appendChild(grid);
-                container.appendChild(section);
+        function render() {
+            const list = document.getElementById('list');
+            if (db.length === 0) {
+                list.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 100px 0; color: #4A5568;">
+                    <p>当前词库为空</p>
+                    <p style="font-size:12px">点击左上角标题登录 (密码 lin888)</p>
+                </div>`;
+                return;
+            }
+            list.innerHTML = '';
+            db.forEach((item, i) => {
+                const div = document.createElement('div');
+                div.className = 'card';
+                div.innerHTML = `
+                    <img src="${item.img}" onerror="this.src='https://via.placeholder.com/200?text=图片失效'">
+                    <div class="card-info">
+                        <div class="card-title">${item.name}</div>
+                        <button class="copy-btn" onclick="copyPrompt('${encodeURIComponent(item.prompt)}')">复制提示词</button>
+                        ${isAdmin ? `<div onclick="del(${i})" style="color:#E53E3E; font-size:12px; margin-top:15px; text-align:center; cursor:pointer">删除此项</div>` : ''}
+                    </div>
+                `;
+                list.appendChild(div);
             });
         }
 
-        // 核心保存功能 - 彻底修复版
-        function handleSave() {
-            const cat = document.getElementById('in-category').value.trim();
-            const name = document.getElementById('in-name').value.trim();
-            const img = document.getElementById('in-img').value.trim();
-            const promptStr = document.getElementById('in-prompt').value.trim();
-            const gIdx = parseInt(document.getElementById('edit-gIdx').value);
-            const iIdx = parseInt(document.getElementById('edit-iIdx').value);
-
-            if(!cat || !name || !promptStr) {
-                alert("请填写分类、名称和提示词！");
-                return;
+        function login() {
+            if (prompt("请输入管理员密码") === "lin888") {
+                isAdmin = true;
+                document.querySelectorAll('.admin-btn').forEach(b => b.style.display = 'block');
+                render();
+                alert("登录成功，您可以开始录入或备份了");
             }
+        }
 
-            const newItem = { name, img, prompt: promptStr };
+        function showModal() { document.getElementById('myModal').style.display = 'block'; }
+        function closeModal() { document.getElementById('myModal').style.display = 'none'; }
 
-            if (isNaN(gIdx) || gIdx === -1) {
-                // 新增
-                let group = db.find(g => g.category === cat);
-                if (!group) {
-                    db.push({ category: cat, items: [newItem] });
-                } else {
-                    group.items.push(newItem);
-                }
-            } else {
-                // 修改
-                if (db[gIdx].category !== cat) {
-                    // 跨分类移动
-                    db[gIdx].items.splice(iIdx, 1);
-                    if(db[gIdx].items.length === 0) db.splice(gIdx, 1);
-                    let newGroup = db.find(g => g.category === cat);
-                    if(!newGroup) db.push({ category: cat, items: [newItem] });
-                    else newGroup.items.push(newItem);
-                } else {
-                    db[gIdx].items[iIdx] = newItem;
-                }
-            }
-
-            localStorage.setItem('teacherLin_DB', JSON.stringify(db));
-            renderPage();
+        function saveData() {
+            const name = document.getElementById('name').value;
+            const img = document.getElementById('img').value;
+            const promptStr = document.getElementById('prompt').value;
+            if (!name || !img || !promptStr) return alert("请填写完整");
+            
+            db.push({ name, img, prompt: promptStr });
+            localStorage.setItem('lin_teacher_db', JSON.stringify(db));
             closeModal();
-            showToast("✅ 保存成功");
+            render();
+            // 清空输入框
+            document.getElementById('name').value = '';
+            document.getElementById('img').value = '';
+            document.getElementById('prompt').value = '';
         }
 
-        function openModal(gIdx = -1, iIdx = -1) {
-            document.getElementById('edit-gIdx').value = gIdx;
-            document.getElementById('edit-iIdx').value = iIdx;
-            if (gIdx !== -1) {
-                const item = db[gIdx].items[iIdx];
-                document.getElementById('in-category').value = db[gIdx].category;
-                document.getElementById('in-name').value = item.name;
-                document.getElementById('in-img').value = item.img;
-                document.getElementById('in-prompt').value = item.prompt;
-            } else {
-                document.getElementById('in-category').value = "";
-                document.getElementById('in-name').value = "";
-                document.getElementById('in-img').value = "";
-                document.getElementById('in-prompt').value = "";
-            }
-            document.getElementById('adminModal').style.display = 'block';
+        function del(i) { if (confirm("确定删除吗？")) { db.splice(i, 1); localStorage.setItem('lin_teacher_db', JSON.stringify(db)); render(); } }
+
+        function copyPrompt(s) {
+            const t = document.createElement('textarea');
+            t.value = decodeURIComponent(s); document.body.appendChild(t);
+            t.select(); document.execCommand('copy'); document.body.removeChild(t);
+            alert("✅ 提示词已复制");
         }
 
-        function closeModal() { document.getElementById('adminModal').style.display = 'none'; }
-        function editItem(g, i) { openModal(g, i); }
-        function deleteItem(g, i) { if(confirm('删除?')) { db[g].items.splice(i, 1); if(db[g].items.length===0) db.splice(g, 1); updateDB(); } }
-        function deleteGroup(g) { if(confirm('全组删除?')) { db.splice(g, 1); updateDB(); } }
-        function updateDB() { localStorage.setItem('teacherLin_DB', JSON.stringify(db)); renderPage(); }
-        function copyText(encoded) {
-            const t = decodeURIComponent(encoded);
-            const el = document.createElement('textarea');
-            el.value = t; document.body.appendChild(el);
-            el.select(); document.execCommand('copy'); document.body.removeChild(el);
-            showToast("✅ 已复制");
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "ai_data.json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
         }
-        function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.className = 'show'; setTimeout(() => t.className = '', 2000); }
 
-        renderPage();
+        init();
     </script>
 </body>
 </html>
