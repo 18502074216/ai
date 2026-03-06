@@ -2,70 +2,234 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>林老师的咒语集</title>
     <style>
-        :root { --bg: #0B0E14; --card: #151A23; --cyan: #4FD1C5; }
-        body { background: var(--bg); color: white; font-family: sans-serif; padding: 20px; }
-        .nav { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; margin-top: 20px; }
-        .card { background: var(--card); border-radius: 12px; border: 1px solid #333; overflow: hidden; }
-        .card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
-        .admin-btn { background: var(--cyan); color: #000; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; display: none; }
+        :root {
+            --bg-color: #0B0E14;
+            --card-bg: #151A23;
+            --border-color: #2D3748;
+            --text-main: #FFFFFF;
+            --text-dim: #8B949E;
+            --neon-cyan: #4FD1C5; 
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "PingFang SC", sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg-color); color: var(--text-main); padding: 20px; max-width: 1200px; margin: 0 auto; }
+
+        /* 顶部导航 */
+        .navbar { 
+            display: flex; justify-content: space-between; align-items: center; 
+            margin-bottom: 30px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 15px;
+        }
+        .logo-area { display: flex; align-items: center; cursor: pointer; }
+        .logo-area::before { content: ""; display: block; width: 4px; height: 24px; background: var(--neon-cyan); margin-right: 12px; border-radius: 2px; }
+        .logo-area h2 { font-size: 22px; font-weight: 700; }
+
+        .admin-only { display: none; gap: 10px; } 
+        .admin-btn { background: var(--neon-cyan); color: #000; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+
+        /* 内容布局 */
+        .section-header { display: flex; align-items: center; margin: 30px 0 15px; }
+        .section-header::before { content: ""; display: block; width: 3px; height: 18px; background: var(--neon-cyan); margin-right: 10px; }
+        .section-title { font-size: 18px; font-weight: bold; flex-grow: 1; }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
+        @media (max-width: 480px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+
+        .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; position: relative; }
+        .img-box { width: 100%; aspect-ratio: 1/1; cursor: pointer; }
+        .img-box img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .card-controls { position: absolute; top: 8px; right: 8px; display: none; gap: 6px; }
+        .ctrl-btn { width: 28px; height: 28px; border-radius: 50%; border: none; background: rgba(0,0,0,0.7); color: white; cursor: pointer; }
+
+        .card-info { padding: 12px; text-align: center; }
+        .copy-btn { width: 100%; padding: 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: white; border-radius: 6px; cursor: pointer; font-size: 12px; }
+
+        /* 弹窗设计 */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; }
+        .modal-content { 
+            background: #1A202C; width: 90%; max-width: 400px; margin: 10vh auto; padding: 25px; 
+            border-radius: 15px; border: 1px solid var(--neon-cyan); 
+        }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-size: 12px; color: var(--text-dim); }
+        .form-group input, .form-group textarea { width: 100%; padding: 10px; background: #0B0E14; border: 1px solid var(--border-color); color: white; border-radius: 6px; }
+        
+        .submit-btn { width: 100%; padding: 12px; background: var(--neon-cyan); color: #000; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+
+        #toast { position: fixed; bottom: -50px; left: 50%; transform: translateX(-50%); background: var(--neon-cyan); color: #000; padding: 10px 25px; border-radius: 20px; transition: 0.4s; z-index: 2000; }
+        #toast.show { bottom: 30px; }
     </style>
 </head>
 <body>
-    <div class="nav">
-        <h2 onclick="login()" style="cursor:pointer">林老师的咒语集</h2>
-        <div id="controls">
-            <button id="addBtn" class="admin-btn" onclick="add()">+ 添加</button>
-            <button id="expBtn" class="admin-btn" style="background:#fff" onclick="exportData()">导出备份</button>
+
+    <div class="navbar">
+        <div class="logo-area" onclick="checkAdmin()">
+            <h2>林老师的咒语集</h2>
+        </div>
+        <div id="admin-tools" class="admin-only">
+            <button class="admin-btn" onclick="openModal()">＋ 添加内容</button>
+            <button onclick="logout()" style="background:none; border:1px solid red; color:red; padding:5px; border-radius:4px; font-size:10px; cursor:pointer;">退出</button>
         </div>
     </div>
-    <div id="list" class="grid"></div>
+
+    <div id="main-content"></div>
+
+    <div class="modal" id="adminModal">
+        <div class="modal-content">
+            <h3 style="margin-bottom:15px;">编辑器</h3>
+            <input type="hidden" id="edit-gIdx"><input type="hidden" id="edit-iIdx">
+            <div class="form-group"><label>分类</label><input type="text" id="in-category" placeholder="分类名称"></div>
+            <div class="form-group"><label>名称</label><input type="text" id="in-name" placeholder="内容名称"></div>
+            <div class="form-group"><label>图片链接</label><input type="text" id="in-img" placeholder="图片URL或路径"></div>
+            <div class="form-group"><label>提示词</label><textarea id="in-prompt" rows="5" placeholder="AI提示词"></textarea></div>
+            <button class="submit-btn" onclick="handleSave()">确认保存</button>
+            <button onclick="closeModal()" style="width:100%; background:none; color:gray; border:none; margin-top:10px; cursor:pointer;">取消</button>
+        </div>
+    </div>
+
+    <div id="toast">✅ 操作成功</div>
 
     <script>
-        let db = JSON.parse(localStorage.getItem('lin_ai_db')) || [];
-        let isAdmin = false;
+        // 初始化数据
+        let db = JSON.parse(localStorage.getItem('teacherLin_DB')) || [];
+        let isAdmin = sessionStorage.getItem('isLinAdmin') === 'true';
 
-        function render() {
-            const list = document.getElementById('list');
-            list.innerHTML = db.length ? '' : '空库，点击标题输入密码（lin888）开始录入';
-            db.forEach((item, i) => {
-                const div = document.createElement('div');
-                div.className = 'card';
-                div.innerHTML = `<img src="${item.img}"><div style="padding:10px">${item.name}</div>
-                ${isAdmin ? `<button onclick="del(${i})" style="color:red;background:none;border:none;width:100%;cursor:pointer">删除</button>` : ''}`;
-                list.appendChild(div);
-            });
-        }
-
-        function login() {
-            if(prompt("口令") === "lin888") {
+        // 登录逻辑
+        function checkAdmin() {
+            if(isAdmin) return;
+            const pw = prompt("请输入管理员口令：");
+            if(pw === "lin888") {
                 isAdmin = true;
-                document.querySelectorAll('.admin-btn').forEach(b => b.style.display = 'inline-block');
-                render();
+                sessionStorage.setItem('isLinAdmin', 'true');
+                renderPage();
+                showToast("管理员模式已开启");
             }
         }
 
-        function add() {
-            const name = prompt("项目名");
-            const img = prompt("图片地址");
-            const p = prompt("提示词");
-            if(name && img) { db.push({name, img, p}); save(); }
+        function logout() {
+            isAdmin = false;
+            sessionStorage.removeItem('isLinAdmin');
+            renderPage();
         }
 
-        function save() { localStorage.setItem('lin_ai_db', JSON.stringify(db)); render(); }
-        function del(i) { if(confirm("删？")) { db.splice(i, 1); save(); } }
-        
-        function exportData() {
-            const blob = new Blob([JSON.stringify(db)], {type: 'application/json'});
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = 'ai_data.json';
-            a.click();
+        // 渲染页面
+        function renderPage() {
+            document.querySelectorAll('.admin-only').forEach(el => el.style.display = isAdmin ? 'flex' : 'none');
+            const container = document.getElementById('main-content');
+            container.innerHTML = db.length === 0 ? '<div style="text-align:center;color:gray;padding:50px;">点击标题登录后开始添加</div>' : '';
+
+            db.forEach((group, gIdx) => {
+                let section = document.createElement('div');
+                section.innerHTML = `
+                    <div class="section-header">
+                        <span class="section-title">${group.category}</span>
+                        ${isAdmin ? `<span style="color:red;font-size:12px;cursor:pointer;" onclick="deleteGroup(${gIdx})">删除分类</span>` : ''}
+                    </div>`;
+                let grid = document.createElement('div');
+                grid.className = 'grid';
+                
+                group.items.forEach((item, iIdx) => {
+                    let card = document.createElement('div');
+                    card.className = 'card';
+                    card.innerHTML = `
+                        <div class="card-controls" style="display:${isAdmin?'flex':'none'}">
+                            <button class="ctrl-btn" onclick="editItem(${gIdx},${iIdx})">✎</button>
+                            <button class="ctrl-btn" onclick="deleteItem(${gIdx},${iIdx})">×</button>
+                        </div>
+                        <div class="img-box" onclick="copyText('${encodeURIComponent(item.prompt)}')">
+                            <img src="${item.img}" onerror="this.src='https://via.placeholder.com/300?text=Wait...'">
+                        </div>
+                        <div class="card-info">
+                            <div style="font-size:12px;color:gray;margin-bottom:8px;">${item.name}</div>
+                            <button class="copy-btn" onclick="copyText('${encodeURIComponent(item.prompt)}')">复制提示词</button>
+                        </div>`;
+                    grid.appendChild(card);
+                });
+                section.appendChild(grid);
+                container.appendChild(section);
+            });
         }
 
-        render();
+        // 核心保存功能 - 彻底修复版
+        function handleSave() {
+            const cat = document.getElementById('in-category').value.trim();
+            const name = document.getElementById('in-name').value.trim();
+            const img = document.getElementById('in-img').value.trim();
+            const promptStr = document.getElementById('in-prompt').value.trim();
+            const gIdx = parseInt(document.getElementById('edit-gIdx').value);
+            const iIdx = parseInt(document.getElementById('edit-iIdx').value);
+
+            if(!cat || !name || !promptStr) {
+                alert("请填写分类、名称和提示词！");
+                return;
+            }
+
+            const newItem = { name, img, prompt: promptStr };
+
+            if (isNaN(gIdx) || gIdx === -1) {
+                // 新增
+                let group = db.find(g => g.category === cat);
+                if (!group) {
+                    db.push({ category: cat, items: [newItem] });
+                } else {
+                    group.items.push(newItem);
+                }
+            } else {
+                // 修改
+                if (db[gIdx].category !== cat) {
+                    // 跨分类移动
+                    db[gIdx].items.splice(iIdx, 1);
+                    if(db[gIdx].items.length === 0) db.splice(gIdx, 1);
+                    let newGroup = db.find(g => g.category === cat);
+                    if(!newGroup) db.push({ category: cat, items: [newItem] });
+                    else newGroup.items.push(newItem);
+                } else {
+                    db[gIdx].items[iIdx] = newItem;
+                }
+            }
+
+            localStorage.setItem('teacherLin_DB', JSON.stringify(db));
+            renderPage();
+            closeModal();
+            showToast("✅ 保存成功");
+        }
+
+        function openModal(gIdx = -1, iIdx = -1) {
+            document.getElementById('edit-gIdx').value = gIdx;
+            document.getElementById('edit-iIdx').value = iIdx;
+            if (gIdx !== -1) {
+                const item = db[gIdx].items[iIdx];
+                document.getElementById('in-category').value = db[gIdx].category;
+                document.getElementById('in-name').value = item.name;
+                document.getElementById('in-img').value = item.img;
+                document.getElementById('in-prompt').value = item.prompt;
+            } else {
+                document.getElementById('in-category').value = "";
+                document.getElementById('in-name').value = "";
+                document.getElementById('in-img').value = "";
+                document.getElementById('in-prompt').value = "";
+            }
+            document.getElementById('adminModal').style.display = 'block';
+        }
+
+        function closeModal() { document.getElementById('adminModal').style.display = 'none'; }
+        function editItem(g, i) { openModal(g, i); }
+        function deleteItem(g, i) { if(confirm('删除?')) { db[g].items.splice(i, 1); if(db[g].items.length===0) db.splice(g, 1); updateDB(); } }
+        function deleteGroup(g) { if(confirm('全组删除?')) { db.splice(g, 1); updateDB(); } }
+        function updateDB() { localStorage.setItem('teacherLin_DB', JSON.stringify(db)); renderPage(); }
+        function copyText(encoded) {
+            const t = decodeURIComponent(encoded);
+            const el = document.createElement('textarea');
+            el.value = t; document.body.appendChild(el);
+            el.select(); document.execCommand('copy'); document.body.removeChild(el);
+            showToast("✅ 已复制");
+        }
+        function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.className = 'show'; setTimeout(() => t.className = '', 2000); }
+
+        renderPage();
     </script>
 </body>
 </html>
